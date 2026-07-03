@@ -1,0 +1,66 @@
+#!/bin/sh
+# Local cron-driven IPV6_FRAG_ESCAPE tracker auto-update.
+# Triggered by ~/.config/systemd/user/ipv6-frag-escape-tracker-update.timer.
+# Logs land in the user journal:
+#   journalctl --user -u ipv6-frag-escape-tracker-update
+#
+# Runs in the dedicated worktree at ~/src/auto-update/ipv6_frag_escape,
+# checked out on branch `auto-update`. Each run merges origin/main
+# forward into auto-update and lets headless Claude commit any updates
+# back onto auto-update only. Merges of auto-update -> main are manual.
+
+set -eu
+
+REPO="$(realpath "$(dirname "${0}")/..")"
+cd "${REPO}"
+
+# Identify this tracker on the first line of every run, so syslog
+# summaries that aggregate several trackers' output (all logged under
+# the generic `auto-update` process name) can be told apart.
+echo "IPV6_FRAG_ESCAPE tracker auto-update starting ($(date -u +%FT%TZ))"
+
+# Refresh the local clones the agent reads via origin/... refs.
+# Doing this here, rather than in the prompt, makes the refresh
+# deterministic — a headless agent occasionally skips these and
+# then reports findings against stale remote-tracking refs.
+git -C "${HOME}/src/linux/stable" fetch --quiet --all --tags ||
+  echo "${0##*/}: warn: linux-stable fetch failed" 1>&2
+# net: the netdev tree, where the IPv6/IPv4 fragmentation fixes land
+# (and get tagged for stable) before they reach Linus. Handy for
+# confirming a backport's provenance ahead of the stable release.
+git -C "${HOME}/src/linux/net" fetch --quiet ||
+  echo "${0##*/}: warn: linux-net fetch failed" 1>&2
+# vulns: the kernel CVE -> fix-commit / fixed-version database. This bug
+# has no CVE yet; keep the clone fresh so the fix-commit lookup is ready
+# (and deterministic) the run after any CVE is assigned.
+git -C "${HOME}/src/linux/vulns" fetch --quiet origin ||
+  echo "${0##*/}: warn: linux-vulns fetch failed" 1>&2
+git -C "${HOME}/src/nixos/nixpkgs" fetch --quiet origin ||
+  echo "${0##*/}: warn: nixpkgs fetch failed" 1>&2
+
+git fetch --quiet origin
+
+if [ -n "$(git status --porcelain)" ]
+then
+  echo 'Working tree dirty; refusing to run. Clean it up and retry.' 1>&2
+  exit 1
+fi
+
+git switch --quiet auto-update
+git merge --quiet --no-edit origin/main
+
+# Headless run. Permission scope (Read/Edit the tracker, WebFetch and
+# curl the sources, zcat/gunzip for the gzipped package indexes, git +
+# date for the commit step) goes in --settings JSON because
+# --allowed-tools on the CLI silently ignores Bash patterns.
+# `default` mode under -p with no TTY refuses anything outside the
+# allowlist without prompting. The prompt forbids push and PR creation,
+# and `gh` is not in the tool list anyway.
+exec claude -p \
+  --model claude-sonnet-4-6 \
+  --permission-mode default \
+  --settings '{"permissions":{"allow":["Read","Edit","WebFetch","Bash(git:*)","Bash(date:*)","Bash(curl:*)","Bash(zcat:*)","Bash(gunzip:*)"]}}' \
+  --output-format text \
+  --no-session-persistence \
+  --max-budget-usd 3 \
+  < scripts/auto-update-prompt.txt
