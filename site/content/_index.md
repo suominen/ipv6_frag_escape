@@ -3,7 +3,7 @@ title: "IPV6_FRAG_ESCAPE — container escape tracking"
 description: "Linux kernel IPv6 fragmentation overflow — unprivileged container escape — distro patch status tracker"
 layout: "single"
 date: 2026-07-03
-lastmod: 2026-07-03
+lastmod: 2026-07-04
 cover:
   image: "ipv6-frag-escape-tracker.png"
   alt: "IPV6_FRAG_ESCAPE — Linux IPv6 fragmentation container escape tracker"
@@ -76,15 +76,17 @@ it entirely.
 
 The fix went to Linus as **v7.2-rc1** with **no `Cc: stable`**, so as of the
 last check **no stable branch carries the backport** — every maintained
-line in the 6.6–7.1 window is still unpatched upstream, and each
-distribution must cherry-pick it independently (AlmaLinux was first to do
-so).  LTS lines that predate the trigger (6.1 and older) are not affected.
+in-window line (7.1.y, 6.18.y, 6.12.y, 6.6.y) is still unpatched upstream,
+and each distribution must cherry-pick it independently (AlmaLinux was first
+to do so).  7.0.y is also unpatched but now EOL at kernel.org.  LTS lines
+that predate the trigger (6.1 and older) are not affected.
 
 | Branch | Status | Current | Notes |
 |---|---|---|---|
 | Linus mainline | :white_check_mark: Carries `736b380e28d0` | v7.2-rc1 | first fixed release; merge `38becddc` |
 | 7.1.x | :x: Not backported | 7.1.2 | in window; fix postdates the branch point |
-| 7.0.x | :x: Not backported | 7.0.14 | in window |
+| 7.0.x | :x: Not backported | 7.0.14 | in window; EOL upstream |
+| 6.18.x | :x: Not backported | 6.18.37 | LTS; in window |
 | 6.12.x | :x: Not backported | 6.12.94 | LTS; in window |
 | 6.6.x | :x: Not backported | 6.6.143 | LTS; in window (oldest reachable line) |
 | 6.1.x | :heavy_minus_sign: Not affected | 6.1.176 | LTS; trigger `ce650a166335` not present (< 6.6) |
@@ -155,12 +157,15 @@ The EL10 family is the root-exploitable case: `CONFIG_INIT_ON_ALLOC_DEFAULT_ON`
 is **off** by default, `/sys/kernel/btf/vmlinux` is world-readable, and the
 shipped 6.12 kernel is in-window — exactly the PoC's target (proven on
 CentOS Stream 10 `6.12.0-242.el10` and RHEL 10 `6.12.0-228.el10`).
-**AlmaLinux 10** is the leading indicator: it shipped the fix as
-`kernel-6.12.0-211.28.2.el10_2` on 2026-06-30 (testing repo).  Rocky 10's
-newest build is `6.12.0-211.26.1.el10_2` — below AlmaLinux's fixed release
-and carrying no backport — so it is still `:x: Vulnerable`; RHEL 10, Oracle
-Linux 10 and CloudLinux OS 10 are expected to be in the same state until
-their kernel updates land.  Rocky 8 (4.18) and 9 (5.14) predate the bug.
+**AlmaLinux 10** is the leading indicator: it shipped the initial fix as
+`kernel-6.12.0-211.28.2.el10_2` on 2026-06-30 (testing repo), and
+production BaseOS now carries `kernel-6.12.0-211.29.1.el10_2` — above the
+stated fixed version, so AlmaLinux 10 production appears patched.  Rocky
+10's newest build is `6.12.0-211.26.1.el10_2` — below AlmaLinux's fixed
+release and carrying no backport — so it remains `:x: Vulnerable`; RHEL 10,
+Oracle Linux 10 and CloudLinux OS 10 are expected to be in the same state
+until their kernel updates land.  Rocky 8 (4.18) and 9 (5.14) predate the
+bug.
 
 ### Amazon Linux
 
@@ -301,7 +306,7 @@ Apply with `nixos-rebuild switch`.
 
 ## Verification log
 
-*Last verified 2026-07-03.*
+*Last verified 2026-07-04.*
 
 ### Upstream
 
@@ -312,10 +317,11 @@ Apply with `nixos-rebuild switch`.
 - The trigger `ce650a166335` (*udp6: Fix `__ip6_append_data()`'s handling
   of MSG_SPLICE_PAGES*) is present in stable branches 6.6.y and newer and
   absent from 6.1.y — confirming the 6.6 reachability boundary.
-- **No stable backport yet**: as of 2026-07-03 none of linux-7.1.y (7.1.2),
-  7.0.y (7.0.14), 6.12.y (6.12.94) or 6.6.y (6.6.143) contains the fix
-  (checked by message and upstream-reference grep against a freshly fetched
-  `linux/stable`).  There is no CVE, so `vulns.git` has no record to key on.
+- **No stable backport yet**: none of linux-7.1.y (7.1.2), 7.0.y (7.0.14;
+  now EOL upstream), 6.18.y (6.18.37), 6.12.y (6.12.94) or 6.6.y (6.6.143)
+  carries the fix (SHA-reference grep against `linux/stable`).  6.18.y is a
+  longterm branch confirmed in the vulnerable window (trigger present, no
+  backport).  There is no CVE, so `vulns.git` has no record to key on.
 
 ### Distributions
 
@@ -324,19 +330,22 @@ Apply with `nixos-rebuild switch`.
   only (`init_on_alloc=y`).  bookworm 6.1.170-3 and bullseye 5.10.223-1
   predate the v6.6 trigger → not affected.
 - **Proxmox VE** (via the `pve-no-subscription` `Packages` index): PVE 9
-  default `proxmox-kernel-6.14.11-9-pve` (6.17 and 7.0 also offered); PVE 8
-  default `proxmox-kernel-6.8.12-32-pve` — all in-window, Ubuntu-derived
-  `init_on_alloc=y` → DoS only.
+  default now `proxmox-kernel-7.0` at 7.0.14-2 (was 6.14.11-9-pve); PVE 8
+  default `proxmox-kernel-6.8.12-32-pve` (unchanged) — all in-window,
+  Ubuntu-derived `init_on_alloc=y` → DoS only.
 - **NixOS** (via the local nixpkgs clone): `common-config.nix` sets
   `INIT_ON_ALLOC_DEFAULT_ON = yes`; channels top out at 7.1.2 with a 6.12.x
   default — in-window, DoS only.
 - **Rocky Linux** (via Rocky BaseOS repodata): Rocky 10 newest
-  `6.12.0-211.26.1.el10_2` (< AlmaLinux's fixed `6.12.0-211.28.2.el10_2`),
-  EL10 `init_on_alloc` off → `:x:` root-exploitable, no fix yet.  Rocky 9
-  `5.14.0-687.17.1.el9_8` and Rocky 8 `4.18.0-553.el8_10` predate the bug.
-- **AlmaLinux** (leading indicator, via its blog): fixed as
-  `kernel-6.12.0-211.28.2.el10_2` on 2026-06-30 (testing repo); AlmaLinux
-  Kitten 10 patch pending.
+  `6.12.0-211.26.1.el10_2` (below AlmaLinux's production-fixed
+  `6.12.0-211.29.1.el10_2`), EL10 `init_on_alloc` off → `:x:`
+  root-exploitable, no fix yet.  Rocky 9 `5.14.0-687.17.1.el9_8` and Rocky 8
+  `4.18.0-553.el8_10` predate the bug.
+- **AlmaLinux** (leading indicator, via its blog and BaseOS repodata):
+  initial fix `kernel-6.12.0-211.28.2.el10_2` on 2026-06-30 (testing repo);
+  production BaseOS now carries `kernel-6.12.0-211.29.1.el10_2`, which
+  exceeds the stated fixed version — AlmaLinux 10 production appears patched.
+  Kitten 10 patch still pending per the 2026-06-30 blog.
 - **Amazon Linux**: default AL2023 (6.1.x) and AL2 (4.14.x) predate the
   trigger → not affected; AL2023 opt-in `kernel6.12`/`kernel6.18` streams
   are in-window and unverified for `init_on_alloc`.
