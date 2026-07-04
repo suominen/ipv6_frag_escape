@@ -14,7 +14,7 @@ cover:
 
 | Field | Detail |
 |---|---|
-| CVE ID | None assigned |
+| CVE ID | CVE-2026-53362 |
 | Alias | `IPV6_FRAG_ESCAPE` (the name its [PoC][poc] uses); TuxCare writes it `ipv6-frag-escape` |
 | Component | Kernel: `net/ipv6/ip6_output.c` `__ip6_append_data()` · IPv4 sibling `net/ipv4/ip_output.c` `__ip_append_data()` |
 | Type | Container / jail escape → local privilege escalation — slab overflow into `skb_shared_info` → page UAF → Dirty Pagetable → root shell via `core_pattern` |
@@ -25,7 +25,7 @@ cover:
 | Discoverer | Massimiliano Oldani ([`sgkdev`][poc]) |
 | Public disclosure | 2026-06-29 ([LinkedIn][writeup]) / 2026-06-30 ([AlmaLinux][alma], [TuxCare][tuxcare], [Finnish NCSC][ncsc]) |
 | Public PoC | [sgkdev/ipv6_frag_escape][poc] |
-| KEV / EPSS / CVSS | Not applicable — no CVE |
+| KEV / EPSS / CVSS | Not yet assigned (CVE newly issued) |
 
 ## How the exploitation chain works
 
@@ -74,22 +74,23 @@ it entirely.
 
 ## Upstream fixed versions
 
-The fix went to Linus as **v7.2-rc1** with **no `Cc: stable`**, so as of the
-last check **no stable branch carries the backport** — every maintained
-in-window line (7.1.y, 6.18.y, 6.12.y, 6.6.y) is still unpatched upstream,
-and each distribution must cherry-pick it independently (AlmaLinux was first
-to do so).  7.0.y is also unpatched but now EOL at kernel.org.  LTS lines
-that predate the trigger (6.1 and older) are not affected.
+The fix went to Linus as **v7.2-rc1** with **no `Cc: stable`**.  A CVE
+(**CVE-2026-53362**) was subsequently assigned by the kernel CNA, and the
+backport has since landed in all maintained in-window stable lines:
+**6.6.144**, **6.12.95**, **6.18.38**, and **7.1.3**.  7.0.y reached end of
+life upstream without receiving the backport.  LTS lines that predate the
+trigger (6.1 and older) are not exploitable; the CVE record includes a
+6.1.177 fix for the latent accounting bug nonetheless.
 
 | Branch | Status | Current | Notes |
 |---|---|---|---|
 | Linus mainline | :white_check_mark: Carries `736b380e28d0` | v7.2-rc1 | first fixed release; merge `38becddc` |
-| 7.1.x | :x: Not backported | 7.1.2 | in window; fix postdates the branch point |
+| 7.1.x | :white_check_mark: Carries `736b380e28d0` | 7.1.3 | in window; first fixed point release |
 | 7.0.x | :x: Not backported | 7.0.14 | in window; EOL upstream |
-| 6.18.x | :x: Not backported | 6.18.37 | LTS; in window |
-| 6.12.x | :x: Not backported | 6.12.94 | LTS; in window |
-| 6.6.x | :x: Not backported | 6.6.143 | LTS; in window (oldest reachable line) |
-| 6.1.x | :heavy_minus_sign: Not affected | 6.1.176 | LTS; trigger `ce650a166335` not present (< 6.6) |
+| 6.18.x | :white_check_mark: Carries `736b380e28d0` | 6.18.38 | LTS; in window; first fixed point release |
+| 6.12.x | :white_check_mark: Carries `736b380e28d0` | 6.12.95 | LTS; in window; first fixed point release |
+| 6.6.x | :white_check_mark: Carries `736b380e28d0` | 6.6.144 | LTS; in window; first fixed point release; oldest reachable line |
+| 6.1.x | :heavy_minus_sign: Not affected | 6.1.177 | LTS; trigger `ce650a166335` not present (< 6.6) |
 | 5.15.x | :heavy_minus_sign: Not affected | 5.15.210 | predates the introducing commit |
 | 5.10.x | :heavy_minus_sign: Not affected | 5.10.259 | predates the introducing commit |
 
@@ -299,10 +300,10 @@ Apply with `nixos-rebuild switch`.
   `init_on_alloc=on`, so a vulnerable kernel there is a denial of service,
   not a takeover — still a crash an unprivileged user can trigger.  Treat
   it as mitigated, not fixed; the kernel hole remains until patched.
-- **No `Cc: stable`:** because the fix reached mainline without a stable
-  tag, a kernel that merely tracks a stable branch will stay vulnerable
-  until its distro cherry-picks the backport — do not assume a recent
-  6.12.y / 7.x.y point release is safe.
+- **Stable backports now available (CVE-2026-53362):** the fix has landed
+  in 6.6.144, 6.12.95, 6.18.38, and 7.1.3, but distro kernels that have
+  not yet adopted one of those releases remain vulnerable.  Check the
+  distribution row for your kernel.
 
 ## Verification log
 
@@ -317,11 +318,15 @@ Apply with `nixos-rebuild switch`.
 - The trigger `ce650a166335` (*udp6: Fix `__ip6_append_data()`'s handling
   of MSG_SPLICE_PAGES*) is present in stable branches 6.6.y and newer and
   absent from 6.1.y — confirming the 6.6 reachability boundary.
-- **No stable backport yet**: none of linux-7.1.y (7.1.2), 7.0.y (7.0.14;
-  now EOL upstream), 6.18.y (6.18.37), 6.12.y (6.12.94) or 6.6.y (6.6.143)
-  carries the fix (SHA-reference grep against `linux/stable`).  6.18.y is a
-  longterm branch confirmed in the vulnerable window (trigger present, no
-  backport).  There is no CVE, so `vulns.git` has no record to key on.
+- **CVE-2026-53362** assigned by the kernel CNA (confirmed via `vulns.git`
+  `origin/master`; record keys on `736b380e28d0` / `eca856950f7c`).
+- **Stable backports landed**: 6.6.144, 6.12.95, 6.18.38, and 7.1.3 all
+  carry the fix (SHA-reference grep against `linux/stable`; SHAs confirmed
+  against the `vulns.git` `.dyad`).  7.0.y reached end of life at 7.0.14
+  without a backport.  6.1.177 also carries a fix for the latent accounting
+  bug, though 6.1.y lacks the trigger and is not exploitable.  6.16.y
+  (at v6.16.12) is an in-window short-lived stable branch not covered by
+  the CVE dyad and confirmed unpatched.
 
 ### Distributions
 
@@ -363,6 +368,7 @@ Apply with `nixos-rebuild switch`.
 | Kernel fix (IPv4) | <https://github.com/torvalds/linux/commit/eca856950f7cb1a221e02b99d758409f2c5cec42> |
 | Fix merge | <https://github.com/torvalds/linux/commit/38becddc332c1dbee6ab8dc8f13a860c6280b905> |
 | Trigger commit | <https://github.com/torvalds/linux/commit/ce650a1663354a6cad7145e7f5131008458b39d4> |
+| CVE-2026-53362 | <https://www.cve.org/CVERecord?id=CVE-2026-53362> |
 {.references}
 
 [writeup]: https://www.linkedin.com/pulse/ipv6fragescape-unprivileged-container-jail-escape-poc-oldani-xbewf/
