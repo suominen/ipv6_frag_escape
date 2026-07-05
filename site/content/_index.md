@@ -3,7 +3,7 @@ title: "IPV6_FRAG_ESCAPE — container escape tracking"
 description: "Linux kernel IPv6 fragmentation overflow — unprivileged container escape — distro patch status tracker"
 layout: "single"
 date: 2026-07-03
-lastmod: 2026-07-04
+lastmod: 2026-07-05
 cover:
   image: "ipv6-frag-escape-tracker.png"
   alt: "IPV6_FRAG_ESCAPE — Linux IPv6 fragmentation container escape tracker"
@@ -116,7 +116,7 @@ only in prose where relevant.
 
 | Distribution | Release | Kernel | Fixed since | Status |
 |---|---|---|---|---|
-| Debian | sid (unstable) | 7.0.14-1 | — | :warning: Bug present — DoS only |
+| Debian | sid (unstable) | 7.1.3-1 | 2026-07-05 | :white_check_mark: Fixed — ships 7.1.3 (carries upstream backport) |
 | Debian | forky (testing) | 7.0.13-1 | — | :warning: Bug present — DoS only |
 | Debian | 13 (trixie) | 6.12.86-1 | — | :warning: Bug present — DoS only |
 | Debian | 12 (bookworm) | 6.1.170-3 | — | :white_check_mark: Not affected — trigger not present (< 6.6) |
@@ -135,12 +135,14 @@ only in prose where relevant.
 ### Debian / Proxmox VE
 
 Debian ships `CONFIG_INIT_ON_ALLOC_DEFAULT_ON=y`, so its in-window kernels
-(trixie 6.12, forky/sid 7.0) carry the bug but the PoC's stale-pointer
-technique only crashes the kernel — a denial of service, not root.  That is
-a default mitigation, **not** a fix: the kernel hole remains until the
-`736b380e28d0` backport ships.  Debian 12 (6.1) and 11 (5.10) predate the
-v6.6 trigger and are not affected.  Proxmox VE builds Ubuntu-derived
-kernels with the same `init_on_alloc` default; PVE 9 (6.14/6.17/7.0
+carry the bug but the PoC's stale-pointer technique only crashes the kernel —
+a denial of service, not root.  That is a default mitigation, **not** a fix
+until the `736b380e28d0` backport ships.  **Debian sid** (unstable) shipped
+`linux 7.1.3-1`, which tracks upstream 7.1.3 and carries the backport — sid
+is now fixed.  Debian forky (testing, 7.0.13-1) and trixie (stable,
+6.12.86-1) remain unpatched and DoS-only.  Debian 12 (6.1) and 11 (5.10)
+predate the v6.6 trigger and are not affected.  Proxmox VE builds
+Ubuntu-derived kernels with the same `init_on_alloc` default; PVE 9 (6.14/7.0
 options) and PVE 8 (6.8 default) are all in-window and DoS-only.
 
 ### NixOS
@@ -307,7 +309,7 @@ Apply with `nixos-rebuild switch`.
 
 ## Verification log
 
-*Last verified 2026-07-04.*
+*Last verified 2026-07-05.*
 
 ### Upstream
 
@@ -330,12 +332,13 @@ Apply with `nixos-rebuild switch`.
 
 ### Distributions
 
-- **Debian** (via the dak `madison` API): unstable 7.0.14-1, testing
-  (forky) 7.0.13-1, trixie 6.12.86-1 — all in-window, no backport → DoS
-  only (`init_on_alloc=y`).  bookworm 6.1.170-3 and bullseye 5.10.223-1
+- **Debian** (via the dak `madison` API): unstable now `7.1.3-1` (was
+  7.0.14-1) — 7.1.3 carries the upstream backport → **fixed**.  Testing
+  (forky) 7.0.13-1 and trixie 6.12.86-1 remain in-window, no backport →
+  DoS only (`init_on_alloc=y`).  bookworm 6.1.170-3 and bullseye 5.10.223-1
   predate the v6.6 trigger → not affected.
 - **Proxmox VE** (via the `pve-no-subscription` `Packages` index): PVE 9
-  default now `proxmox-kernel-7.0` at 7.0.14-2 (was 6.14.11-9-pve); PVE 8
+  default `proxmox-kernel-7.0` at 7.0.14-3-pve (was 7.0.14-2); PVE 8
   default `proxmox-kernel-6.8.12-32-pve` (unchanged) — all in-window,
   Ubuntu-derived `init_on_alloc=y` → DoS only.
 - **NixOS** (via the local nixpkgs clone): `common-config.nix` sets
