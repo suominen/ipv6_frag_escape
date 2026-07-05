@@ -23,20 +23,39 @@ echo "IPV6_FRAG_ESCAPE tracker auto-update starting ($(date -u +%FT%TZ))"
 # Doing this here, rather than in the prompt, makes the refresh
 # deterministic — a headless agent occasionally skips these and
 # then reports findings against stale remote-tracking refs.
-git -C "${HOME}/src/linux/stable" fetch --quiet --all --tags ||
-  echo "${0##*/}: warn: linux-stable fetch failed" 1>&2
+#
+# The tracker jobs run 15 minutes apart and share these clones, so
+# skip a clone any of them refreshed within the last 2 hours. git
+# touches .git/FETCH_HEAD on every fetch, even a no-op one, so its
+# mtime is "when we last checked"; a clone never fetched has no
+# FETCH_HEAD and counts as stale, and a failed fetch leaves it
+# untouched, so the next job retries instead of skipping.
+fetch_if_stale()
+{
+  local repo label
+  repo="${1}"
+  label="${2}"
+  shift 2
+
+  if [ -n "$(find "${repo}/.git/FETCH_HEAD" -mmin -120 2>/dev/null)" ]
+  then
+    echo "Skipping ${label} fetch (refreshed within 2 hours)"
+    return 0
+  fi
+  git -C "${repo}" fetch --quiet "${@}" ||
+    echo "${0##*/}: warn: ${label} fetch failed" 1>&2
+}
+
+fetch_if_stale "${HOME}/src/linux/stable" linux-stable --all --tags
 # net: the netdev tree, where the IPv6/IPv4 fragmentation fixes land
 # (and get tagged for stable) before they reach Linus. Handy for
 # confirming a backport's provenance ahead of the stable release.
-git -C "${HOME}/src/linux/net" fetch --quiet ||
-  echo "${0##*/}: warn: linux-net fetch failed" 1>&2
+fetch_if_stale "${HOME}/src/linux/net" linux-net
 # vulns: the kernel CVE -> fix-commit / fixed-version database. This bug
 # has no CVE yet; keep the clone fresh so the fix-commit lookup is ready
 # (and deterministic) the run after any CVE is assigned.
-git -C "${HOME}/src/linux/vulns" fetch --quiet origin ||
-  echo "${0##*/}: warn: linux-vulns fetch failed" 1>&2
-git -C "${HOME}/src/nixos/nixpkgs" fetch --quiet origin ||
-  echo "${0##*/}: warn: nixpkgs fetch failed" 1>&2
+fetch_if_stale "${HOME}/src/linux/vulns" linux-vulns origin
+fetch_if_stale "${HOME}/src/nixos/nixpkgs" nixpkgs origin
 
 git fetch --quiet origin
 
