@@ -3,7 +3,7 @@ title: "IPV6_FRAG_ESCAPE — container escape tracking"
 description: "Linux kernel IPv6 fragmentation overflow — unprivileged container escape — distro patch status tracker"
 layout: "single"
 date: 2026-07-03
-lastmod: 2026-07-05
+lastmod: 2026-07-06
 cover:
   image: "ipv6-frag-escape-tracker.png"
   alt: "IPV6_FRAG_ESCAPE — Linux IPv6 fragmentation container escape tracker"
@@ -123,7 +123,7 @@ only in prose where relevant.
 | Debian | 11 (bullseye, LTS) | 5.10.223-1 | — | :white_check_mark: Not affected — predates the bug |
 | Proxmox VE | 9 | 6.14.11-9-pve | — | :warning: Bug present — DoS only |
 | Proxmox VE | 8 | 6.8.12-32-pve | — | :warning: Bug present — DoS only |
-| NixOS | Unstable | 6.12.94 | — | :warning: Bug present — DoS only |
+| NixOS | Unstable | 6.12.95 | 2026-07-06 | :white_check_mark: Fixed — ships 6.12.95 (carries upstream backport) |
 | NixOS | 26.05 | 6.12.94 | — | :warning: Bug present — DoS only |
 | Rocky Linux | 10 | 6.12.0-211.26.1.el10_2 | — | :x: Vulnerable — root-exploitable |
 | Rocky Linux | 9 | 5.14.0-687.17.1.el9_8 | — | :white_check_mark: Not affected — trigger not present (< 6.6) |
@@ -148,11 +148,13 @@ options) and PVE 8 (6.8 default) are all in-window and DoS-only.
 ### NixOS
 
 nixpkgs sets `INIT_ON_ALLOC_DEFAULT_ON = yes` in its kernel
-`common-config.nix`, so every NixOS kernel is DoS-only for this bug.  Both
-the default LTS (`linuxPackages`, 6.12.x) and the latest series
-(`linuxPackages_latest`, 7.1.x) are inside the 6.6–7.1 window and lack the
-backport.  NixOS enables unprivileged user namespaces by default, so the
-residual DoS is reachable; disabling them or moving past the fix closes it.
+`common-config.nix`, so in-window unpatched NixOS kernels are DoS-only.
+**NixOS Unstable** now ships `6.12.95` as its default LTS kernel
+(`linuxPackages`), which carries the `736b380e28d0` backport — unstable is
+fixed.  **NixOS 26.05** remains on `6.12.94` (default LTS) and `7.1.2`
+(`linuxPackages_latest`), both in-window and lacking the backport; the
+residual DoS is reachable since NixOS enables unprivileged user namespaces
+by default.
 
 ### Rocky Linux / RHEL family
 
@@ -309,7 +311,7 @@ Apply with `nixos-rebuild switch`.
 
 ## Verification log
 
-*Last verified 2026-07-05.*
+*Last verified 2026-07-06.*
 
 ### Upstream
 
@@ -342,8 +344,10 @@ Apply with `nixos-rebuild switch`.
   default `proxmox-kernel-6.8.12-32-pve` (unchanged) — all in-window,
   Ubuntu-derived `init_on_alloc=y` → DoS only.
 - **NixOS** (via the local nixpkgs clone): `common-config.nix` sets
-  `INIT_ON_ALLOC_DEFAULT_ON = yes`; channels top out at 7.1.2 with a 6.12.x
-  default — in-window, DoS only.
+  `INIT_ON_ALLOC_DEFAULT_ON = yes`.  **nixos-unstable** advanced to
+  `6.12.95` (default LTS) and `7.1.3` (`linuxPackages_latest`) — both
+  carry the backport, unstable is now fixed.  **nixos-26.05** remains at
+  `6.12.94` default LTS and `7.1.2` latest — in-window, DoS only.
 - **Rocky Linux** (via Rocky BaseOS repodata): Rocky 10 newest
   `6.12.0-211.26.1.el10_2` (below AlmaLinux's production-fixed
   `6.12.0-211.29.1.el10_2`), EL10 `init_on_alloc` off → `:x:`
