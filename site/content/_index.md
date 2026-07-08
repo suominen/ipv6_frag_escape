@@ -121,8 +121,8 @@ only in prose where relevant.
 | Debian | 13 (trixie) | 6.12.86-1 | — | :warning: Bug present — DoS only |
 | Debian | 12 (bookworm) | 6.1.170-3 | — | :white_check_mark: Not affected — trigger not present (< 6.6) |
 | Debian | 11 (bullseye, LTS) | 5.10.223-1 | — | :white_check_mark: Not affected — predates the bug |
-| Proxmox VE | 9 | 6.14.11-9-pve | — | :warning: Bug present — DoS only |
-| Proxmox VE | 8 | 6.8.12-32-pve | — | :warning: Bug present — DoS only |
+| Proxmox VE | 9 | 7.0.14-4-pve | — | :warning: Bug present — DoS only |
+| Proxmox VE | 8 | 6.8.12-33-pve | — | :warning: Bug present — DoS only |
 | NixOS | Unstable | 6.12.95 | 2026-07-06 | :white_check_mark: Fixed — ships 6.12.95 (carries upstream backport) |
 | NixOS | 26.05 | 6.12.95 | 2026-07-08 | :white_check_mark: Fixed — ships 6.12.95 (carries upstream backport) |
 | Rocky Linux | 10 | 6.12.0-211.26.1.el10_2 | — | :x: Vulnerable — root-exploitable |
@@ -142,8 +142,12 @@ until the `736b380e28d0` backport ships.  **Debian sid** (unstable) shipped
 is now fixed.  Debian forky (testing, 7.0.13-1) and trixie (stable,
 6.12.86-1) remain unpatched and DoS-only.  Debian 12 (6.1) and 11 (5.10)
 predate the v6.6 trigger and are not affected.  Proxmox VE builds
-Ubuntu-derived kernels with the same `init_on_alloc` default; PVE 9 (6.14/7.0
-options) and PVE 8 (6.8 default) are all in-window and DoS-only.
+Ubuntu-derived kernels with the same `init_on_alloc` default; PVE 9 (whose
+default kernel is now the 7.0 series) and PVE 8 (6.8 default) are all
+in-window and DoS-only — upstream 7.0.y reached end of life without the
+backport, and Proxmox has not cherry-picked it into either series.  Proxmox
+publishes kernel updates to the `pve-no-subscription` repository first; the
+enterprise repository receives the same kernels later.
 
 ### NixOS
 
@@ -338,10 +342,16 @@ Apply with `nixos-rebuild switch`.
   (forky) 7.0.13-1 and trixie 6.12.86-1 remain in-window, no backport →
   DoS only (`init_on_alloc=y`).  bookworm 6.1.170-3 and bullseye 5.10.223-1
   predate the v6.6 trigger → not affected.
-- **Proxmox VE** (via the `pve-no-subscription` `Packages` index): PVE 9
-  default `proxmox-kernel-7.0` at 7.0.14-3-pve (was 7.0.14-2); PVE 8
-  default `proxmox-kernel-6.8.12-32-pve` (unchanged) — all in-window,
-  Ubuntu-derived `init_on_alloc=y` → DoS only.
+- **Proxmox VE** (via the `pve-no-subscription` `Packages` index and the
+  `pve-kernel.git` packaging changelog): the PVE 9 default kernel series is
+  now 7.0 (`proxmox-default-kernel` 2.1.0 depends on `proxmox-kernel-7.0`),
+  newest 7.0.14-4-pve; PVE 8 default newest 6.8.12-33-pve.  Neither carries
+  the fraggap backport: 7.0.y went EOL upstream without it, the 7.0.14-4 /
+  6.8.12-33 changelogs list only unrelated security cherry-picks, and
+  6.8.12-32 synced stable changes only up to 6.6.141/6.12.91 (below the
+  fixed 6.6.144/6.12.95) — all in-window, Ubuntu-derived `init_on_alloc=y`
+  → DoS only.  The enterprise repository is auth-gated and trails
+  `pve-no-subscription`, so tracking keys on `pve-no-subscription`.
 - **NixOS** (via the local nixpkgs clone): `common-config.nix` sets
   `INIT_ON_ALLOC_DEFAULT_ON = yes`.  **nixos-unstable** at `6.12.95`
   (default LTS) and `7.1.3` (`linuxPackages_latest`) — both carry the

@@ -439,12 +439,30 @@ curl -fsSL "$url" | zcat | grep -A3 '^Package: proxmox-default-kernel'
 curl -fsSL "$url" | zcat | grep '^Package: proxmox-kernel-<X.Y>\.'
 ```
 
-As of 2026-07-03: VE 9 offers `proxmox-kernel-6.14` (default, newest
-6.14.11-9-pve), 6.17, and 7.0; VE 8 default `proxmox-kernel-6.8` (newest
-6.8.12-32-pve), 6.14 opt-in.  All are inside the 6.6–7.1 window.  Proxmox
-kernels are Ubuntu-derived, so `init_on_alloc` is on ⇒ DoS-only.  Whether a
-Proxmox kernel carries the fix tracks its upstream/Ubuntu series, not
-Debian's.
+The default kernel *series* is whatever the highest-versioned
+`proxmox-default-kernel` meta-package depends on — check it each time, it
+moves.  As of 2026-07-08: VE 9 default is `proxmox-kernel-7.0`
+(`proxmox-default-kernel` 2.1.0; newest 7.0.14-4-pve), with 6.14 and 6.17
+as older options; VE 8 default `proxmox-kernel-6.8` (newest 6.8.12-33-pve),
+6.14 opt-in.  All are inside the 6.6–7.1 window.  Proxmox kernels are
+Ubuntu-derived, so `init_on_alloc` is on ⇒ DoS-only.  Whether a Proxmox
+kernel carries the fix tracks its upstream/Ubuntu series, not Debian's —
+and 7.0.y went EOL upstream *without* the fraggap backport, so a PVE 9 fix
+can only arrive as a Proxmox/Ubuntu cherry-pick or a rebase onto 7.1+.
+
+To check for such a cherry-pick, read the packaging changelog in Proxmox's
+kernel git — `https://git.proxmox.com/git/pve-kernel.git`, branch `master`
+for the current PVE 9 series, `bookworm-6.8` for PVE 8.  Proxmox lists
+every security cherry-pick there by name/CVE.  The cgit HTML may be gated,
+but git smart-HTTP works headless: shallow-clone with `--depth 1` (the
+kernel itself is an unfetched submodule, so the clone is small) and read
+`debian/changelog` plus `patches/`.
+
+The enterprise repository (`enterprise.proxmox.com`) is HTTP-auth-gated
+(401 without subscription credentials), so it cannot be polled headlessly.
+Track `pve-no-subscription` only: packages flow pvetest →
+pve-no-subscription → pve-enterprise, so no-subscription is strictly the
+leading indicator and enterprise receives the same kernels later.
 
 ## Rocky / Amazon kernel version source (RPM repodata)
 
