@@ -157,6 +157,11 @@ only distro fix so far is AlmaLinux's independent cherry-pick
   backport** is **not** adoption ⇒ leave the row and its recorded version
   untouched.  Recording such a bump is version-only churn
   (`tracker: … kernel bump`) this tracker exists to avoid.
+- Exception: a distro flipping its **default kernel series** (e.g.
+  `proxmox-default-kernel` 2.1.0 moving PVE 9 from 6.14 to 7.0) *is*
+  worth recording even when the verdict holds — update the table row,
+  prose, and verification log **together**; a log-only update leaves the
+  tracker self-inconsistent.
 - Watch AlmaLinux (leading indicator) and Rocky/RHEL for the EL10 root row.
 
 `zcat` / `gunzip` **are** in the headless allowlist — use them for the
@@ -235,6 +240,9 @@ change is what records that everything in between was still current.
 - Go (any recent version) — needed for Hugo Modules to pull PaperMod.
 - The Nix flake provides both: `nix develop` (or just `cd` in if direnv
   is set up).
+- On this host `nix` is **not** available (Debian, no nixpkgs installed) —
+  don't try `nix develop`.  Hugo ≥ 0.146 is at `/usr/local/bin/hugo`, so
+  plain `make build` / `make dist` work directly.
 
 ## Auto-update worktree
 
@@ -337,10 +345,13 @@ SHA, so search by the upstream reference / subject, not `git tag
 --contains`:
 
 ```
-git -C ~/src/linux/stable log origin/linux-<series>.y --grep=736b380e28d0 --grep='account for fraggap' --format='%h %s'
+git -C ~/src/linux/stable log v<series>..origin/linux-<series>.y --grep=736b380e28d0 --grep='account for fraggap' --format='%h %s'
 ```
 
-Empty output ⇒ the series is still unpatched.  Confirm the fix landed
+Empty output ⇒ the series is still unpatched.  Keep the range bounded to
+`v<series>..` — unbounded, the subject grep matches a 2005-era commit
+(*ip_output: account for fraggap when checking to add trailer_len*) and
+reads as a false "fixed".  Confirm the fix landed
 mainline in v7.2-rc1 with:
 
 ```
