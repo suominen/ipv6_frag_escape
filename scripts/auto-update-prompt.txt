@@ -110,7 +110,11 @@ thing you may leave behind is the edited tracker (and its commit).
         RHEL 10 (6.12) is affected. AlmaLinux already advised — cross-check
         OSV https://api.osv.dev/v1/vulns/CVE-2026-53362; confirm the Rocky 10
         ship via BaseOS repodata (zcat) reaching the RHEL 10 fixed NVR.
-      - Amazon: the RPM repodata (zcat) or the ALAS advisory feed.
+      - Amazon: the ALAS signal is the repodata updateinfo.xml.gz (maps CVE
+        -> ALAS -> fixed NVR), NOT the JS per-CVE ALAS page. Fetch
+        <base>repodata/updateinfo.xml.gz (zcat), grep the CVE; check each
+        stream (default kernel 6.1 not affected < 6.6, opt-in
+        kernel6.12/kernel6.18 in-window). Versions from primary.xml.gz.
    Exact recipes are in CLAUDE.md. A row flips to :white_check_mark: when
    its kernel carries the backport (reaches a fixed series release, or a
    distro advisory ships the cherry-pick). On a flip, record the adopted

@@ -514,12 +514,16 @@ string sort).
   Rocky 10 row flips when its BaseOS kernel NVR reaches the RHEL 10 fixed
   build from the Red Hat record above (AlmaLinux, already advised, is the
   fastest cross-check).
-- **Amazon Linux** core (resolve the mirror first): AL2023 default `kernel`
-  is the 6.1 stream (< 6.6, not affected); its opt-in `kernel6.12` /
-  `kernel6.18` streams are in-window.  AL2 core `kernel` is 4.14 (not
-  affected).  Resolve `…/al2023/core/mirrors/latest/x86_64/mirror.list`
-  (AL2023) or `…/2/core/latest/x86_64/mirror.list` (AL2), then read
-  repodata from the returned base URL.
+- **Amazon Linux**: the ALAS signal is the repodata **`updateinfo.xml.gz`**
+  (maps CVE → ALAS → fixed kernel NVR) — the per-CVE ALAS HTML pages are
+  JS-rendered and return nothing headlessly.  AL2023's default `kernel` is
+  6.1 (< 6.6, not affected); its opt-in `kernel6.12` / `kernel6.18` streams
+  are in-window, so grep updateinfo for the CVE and check **each** stream;
+  AL2 core `kernel` is 4.14 (not affected).  Resolve
+  `…/al2023/core/mirrors/latest/x86_64/mirror.list` (AL2023) or
+  `…/2/core/latest/x86_64/mirror.list` (AL2), fetch
+  `<base>repodata/updateinfo.xml.gz` (grep the CVE) and `primary.xml.gz`
+  (current versions).
 
 ## Debian kernel version source
 
