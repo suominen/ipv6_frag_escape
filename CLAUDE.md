@@ -480,6 +480,25 @@ leading indicator and enterprise receives the same kernels later.
 *Seeding-and-adoption method — see "Routine run scope" above.  These
 indexes are gzipped; `zcat` is in the headless allowlist.*
 
+**For the EL rows, the Red Hat security data API is the authoritative
+leading signal for fix status** — RHEL is upstream of Rocky and AlmaLinux.
+Read the per-CVE record's `package_state` (per-product `fix_state`: Affected
+/ Not affected / Will not fix / Out of support scope) and `affected_release`
+(the RHSA advisory ID + fixed kernel NVR once a fix ships):
+
+```
+curl -fsSL 'https://access.redhat.com/hydra/rest/securitydata/cve/CVE-2026-53362.json'
+```
+
+(or WebFetch `https://access.redhat.com/security/cve/CVE-2026-53362`.)  It
+also confirms the window: RHEL 8 (4.18) and RHEL 9 (5.14) predate the v6.0
+origin, so Red Hat marks them **Not affected** — only RHEL 10 (6.12) is
+affected.  When the RHEL 10 `kernel` gains an `affected_release` (RHSA +
+fixed NVR), that is the target NVR; Rocky rebuilds it as an RLSA.  AlmaLinux
+is ahead here (it already published an advisory) — cross-check OSV
+`https://api.osv.dev/v1/vulns/CVE-2026-53362` and the AlmaLinux blog.  The
+repodata below gives the current Rocky NVR to compare against that target.
+
 Both ship `kernel` as an RPM; pull versions straight from repodata
 (`repomd.xml` → the `*-primary.xml.gz` index), no advisory needed.  Fetch
 `<base>/repodata/repomd.xml`, read the `<location href="…-primary.xml.*">`,
@@ -491,9 +510,10 @@ string sort).
 - **Rocky** BaseOS: `https://dl.rockylinux.org/pub/rocky/<8|9|10>/BaseOS/x86_64/os`.
   The dist tag encodes the minor (`el9_8` = 9.8, `el10_2` = 10.2).  Only
   **Rocky 10** (6.12, el10) is in-window and, being EL10 (`init_on_alloc`
-  off), root-exploitable; Rocky 9 (5.14) and 8 (4.18) predate the bug.
-  AlmaLinux is the leading indicator for the EL10 fixed kernel version
-  (blog + its own `dl.almalinux.org` repodata).
+  off), root-exploitable; Rocky 9 (5.14) and 8 (4.18) predate the bug.  The
+  Rocky 10 row flips when its BaseOS kernel NVR reaches the RHEL 10 fixed
+  build from the Red Hat record above (AlmaLinux, already advised, is the
+  fastest cross-check).
 - **Amazon Linux** core (resolve the mirror first): AL2023 default `kernel`
   is the 6.1 stream (< 6.6, not affected); its opt-in `kernel6.12` /
   `kernel6.18` streams are in-window.  AL2 core `kernel` is 4.14 (not

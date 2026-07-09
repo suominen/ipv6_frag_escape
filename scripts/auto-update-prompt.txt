@@ -102,9 +102,15 @@ thing you may leave behind is the edited tracker (and its commit).
           curl -fsS 'https://api.ftp-master.debian.org/madison?package=linux&s=sid,forky,trixie,bookworm,bullseye&text=on'
       - Proxmox: the pve-no-subscription Packages.gz (needs zcat).
       - NixOS: the channel kernel pin from the local nixpkgs clone.
-      - Rocky / Amazon: the RPM repodata (needs zcat) or the advisory feed.
-      - AlmaLinux (leading indicator for the EL10 root row): its blog /
-        errata / dl.almalinux.org repodata for the fixed el10 kernel.
+      - Rocky / RHEL: the Red Hat security data API is the authoritative
+        leading signal (RHEL is upstream of Rocky/Alma) — WebFetch
+        https://access.redhat.com/security/cve/CVE-2026-53362 or curl the
+        matching .json and read the kernel fix_state + affected_release. It
+        confirms RHEL 8/9 (4.18/5.14) are Not affected (predate v6.0); only
+        RHEL 10 (6.12) is affected. AlmaLinux already advised — cross-check
+        OSV https://api.osv.dev/v1/vulns/CVE-2026-53362; confirm the Rocky 10
+        ship via BaseOS repodata (zcat) reaching the RHEL 10 fixed NVR.
+      - Amazon: the RPM repodata (zcat) or the ALAS advisory feed.
    Exact recipes are in CLAUDE.md. A row flips to :white_check_mark: when
    its kernel carries the backport (reaches a fixed series release, or a
    distro advisory ships the cherry-pick). On a flip, record the adopted
