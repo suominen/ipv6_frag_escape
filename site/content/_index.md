@@ -118,7 +118,7 @@ only in prose where relevant.
 |---|---|---|---|---|
 | Debian | sid (unstable) | 7.1.3-1 | 2026-07-05 | :white_check_mark: Fixed — ships 7.1.3 (carries upstream backport) |
 | Debian | forky (testing) | 7.0.13-1 | — | :warning: Bug present — DoS only |
-| Debian | 13 (trixie) | 6.12.86-1 | — | :warning: Bug present — DoS only |
+| Debian | 13 (trixie) | 6.12.95-1 | 2026-07-05 | :white_check_mark: Fixed — ships 6.12.95 (carries upstream backport) |
 | Debian | 12 (bookworm) | 6.1.170-3 | — | :white_check_mark: Not affected — trigger not present (< 6.6) |
 | Debian | 11 (bullseye, LTS) | 5.10.223-1 | — | :white_check_mark: Not affected — predates the bug |
 | Proxmox VE | 9 | 7.0.14-4-pve | — | :warning: Bug present — DoS only |
@@ -141,11 +141,13 @@ only in prose where relevant.
 Debian ships `CONFIG_INIT_ON_ALLOC_DEFAULT_ON=y`, so its in-window kernels
 carry the bug but the PoC's stale-pointer technique only crashes the kernel —
 a denial of service, not root.  That is a default mitigation, **not** a fix
-until the `736b380e28d0` backport ships.  **Debian sid** (unstable) shipped
-`linux 7.1.3-1`, which tracks upstream 7.1.3 and carries the backport — sid
-is now fixed.  Debian forky (testing, 7.0.13-1) and trixie (stable,
-6.12.86-1) remain unpatched and DoS-only.  Debian 12 (6.1) and 11 (5.10)
-predate the v6.6 trigger and are not affected.  Proxmox VE builds
+until the `736b380e28d0` backport ships.  **Debian sid** (unstable) shipped `linux 7.1.3-1`, which tracks upstream
+7.1.3 and carries the backport — sid is now fixed.  **Debian trixie**
+(stable) shipped `linux 6.12.95-1` to the `trixie-security` pocket on
+2026-07-05, which tracks upstream 6.12.95 and carries the backport —
+trixie is now fixed.  Debian forky (testing, 7.0.13-1) remains in-window
+and DoS-only.  Debian 12 (6.1) and 11 (5.10) predate the v6.6 trigger and
+are not affected.  Proxmox VE builds
 Ubuntu-derived kernels with the same `init_on_alloc` default; PVE 9 (whose
 default kernel is now the 7.0 series) and PVE 8 (6.8 default) are all
 in-window and DoS-only — upstream 7.0.y reached end of life without the
@@ -343,11 +345,13 @@ Apply with `nixos-rebuild switch`.
 
 ### Distributions
 
-- **Debian** (via the dak `madison` API): unstable now `7.1.3-1` (was
-  7.0.14-1) — 7.1.3 carries the upstream backport → **fixed**.  Testing
-  (forky) 7.0.13-1 and trixie 6.12.86-1 remain in-window, no backport →
-  DoS only (`init_on_alloc=y`).  bookworm 6.1.170-3 and bullseye 5.10.223-1
-  predate the v6.6 trigger → not affected.
+- **Debian** (via the security tracker and dak `madison` API): unstable
+  `7.1.3-1` and **trixie `6.12.95-1`** (shipped to `trixie-security`,
+  first seen 2026-07-05) carry the upstream backport → **both fixed**.
+  Testing (forky) 7.0.13-1 remains in-window, no backport → DoS only
+  (`init_on_alloc=y`).  bookworm shows as open in the security tracker
+  (latent accounting bug; trigger absent in 6.1.x → not exploitable,
+  row unchanged).  bullseye 5.10.223-1 predates the bug → not affected.
 - **Proxmox VE** (via the `pve-no-subscription` `Packages` index and the
   `pve-kernel.git` packaging changelog): the PVE 9 default kernel series is
   now 7.0 (`proxmox-default-kernel` 2.1.0 depends on `proxmox-kernel-7.0`),
