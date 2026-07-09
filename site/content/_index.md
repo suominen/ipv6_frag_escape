@@ -128,8 +128,12 @@ only in prose where relevant.
 | Rocky Linux | 10 | 6.12.0-211.28.1.el10_2 | — | :x: Vulnerable (root-exploitable) — RHEL fixed (RHSA-2026:34911, 211.30.1); Rocky rebuild pending |
 | Rocky Linux | 9 | 5.14.0-687.17.1.el9_8 | — | :white_check_mark: Not affected — trigger not present (< 6.6) |
 | Rocky Linux | 8 | 4.18.0-553.el8_10 | — | :white_check_mark: Not affected — predates the bug |
-| Amazon Linux | 2023 | 6.1.x (amzn2023) | — | :white_check_mark: Not affected — default stream < 6.6 |
-| Amazon Linux | 2 | 4.14.x (amzn2) | — | :white_check_mark: Not affected — predates the bug |
+| Amazon Linux | 2023 (kernel 6.1) | 6.1.176-220.360 | — | :white_check_mark: Not affected — trigger not present (< 6.6) |
+| Amazon Linux | 2023 (kernel6.12) | 6.12.94-123.176 | — | :x: Vulnerable — in-window, no ALAS |
+| Amazon Linux | 2023 (kernel6.18) | 6.18.36-69.136 | — | :x: Vulnerable — in-window, no ALAS |
+| Amazon Linux | 2 (kernel 4.14) | 4.14.355-284.737 | — | :white_check_mark: Not affected — predates the bug |
+| Amazon Linux | 2 (kernel-5.10) | 5.10.259-258.1043 | — | :white_check_mark: Not affected — trigger not present (< 6.6) |
+| Amazon Linux | 2 (kernel-5.15) | 5.15.210-148.245 | — | :white_check_mark: Not affected — trigger not present (< 6.6) |
 {.distros}
 
 ### Debian / Proxmox VE
