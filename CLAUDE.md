@@ -129,6 +129,12 @@ Amazon rows are **one per kernel stream** — name the stream in the
 stream (default + opt-in) as its own row, and add a row when Amazon ships a
 new stream.
 
+Debian rows track the **default** `linux` kernel of the suite.  An opt-in
+alternative kernel package (e.g. bullseye's `linux-6.1`, the bookworm 6.1
+kernel rebuilt for bullseye) does **not** flip a row's verdict: while
+`src:linux` is open in the security tracker the row stays vulnerable, with
+the opt-in fixed kernel noted in the *Status* cell and `### Debian` prose.
+
 A per-distro `###` section is for **reader-facing** caveats that don't
 fit the table (root-vs-DoS `init_on_alloc` posture, userns default,
 EL10-family scope).  Keep tracking methodology out of it — which distros
@@ -356,7 +362,13 @@ git -C ~/src/linux/stable log v<series>..origin/linux-<series>.y --grep=736b380e
 Empty output ⇒ the series is still unpatched.  Keep the range bounded to
 `v<series>..` — unbounded, the subject grep matches a 2005-era commit
 (*ip_output: account for fraggap when checking to add trailer_len*) and
-reads as a false "fixed".  Confirm the fix landed
+reads as a false "fixed".  **Check the subject of every hit**: a later
+commit that cites the fix SHA in its body or a `Fixes:` tag also matches
+the SHA grep, and its backports can land in **later** point releases than
+the real fix's — reading such a follow-up as the fix records first-fixed
+versions too late (this is how the GhostLock tracker's seed went wrong).
+Only a hit with the fix's own subject is the backport; prefer the `.dyad`
+when it covers the branch.  Confirm the fix landed
 mainline in v7.2-rc1 with:
 
 ```
