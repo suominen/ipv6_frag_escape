@@ -3,7 +3,7 @@ title: "IPV6_FRAG_ESCAPE — container escape tracking"
 description: "Linux kernel IPv6 fragmentation overflow — unprivileged container escape — distro patch status tracker"
 layout: "single"
 date: 2026-07-03
-lastmod: 2026-07-08
+lastmod: 2026-07-09
 cover:
   image: "ipv6-frag-escape-tracker.png"
   alt: "IPV6_FRAG_ESCAPE — Linux IPv6 fragmentation container escape tracker"
@@ -125,7 +125,7 @@ only in prose where relevant.
 | Proxmox VE | 8 | 6.8.12-33-pve | — | :warning: Bug present — DoS only |
 | NixOS | Unstable | 6.12.95 | 2026-07-06 | :white_check_mark: Fixed — ships 6.12.95 (carries upstream backport) |
 | NixOS | 26.05 | 6.12.95 | 2026-07-08 | :white_check_mark: Fixed — ships 6.12.95 (carries upstream backport) |
-| Rocky Linux | 10 | 6.12.0-211.26.1.el10_2 | — | :x: Vulnerable — root-exploitable |
+| Rocky Linux | 10 | 6.12.0-211.28.1.el10_2 | — | :x: Vulnerable (root-exploitable) — RHEL fixed (RHSA-2026:34911, 211.30.1); Rocky rebuild pending |
 | Rocky Linux | 9 | 5.14.0-687.17.1.el9_8 | — | :white_check_mark: Not affected — trigger not present (< 6.6) |
 | Rocky Linux | 8 | 4.18.0-553.el8_10 | — | :white_check_mark: Not affected — predates the bug |
 | Amazon Linux | 2023 | 6.1.x (amzn2023) | — | :white_check_mark: Not affected — default stream < 6.6 |
@@ -168,12 +168,14 @@ CentOS Stream 10 `6.12.0-242.el10` and RHEL 10 `6.12.0-228.el10`).
 **AlmaLinux 10** is the leading indicator: it shipped the initial fix as
 `kernel-6.12.0-211.28.2.el10_2` on 2026-06-30 (testing repo), and
 production BaseOS now carries `kernel-6.12.0-211.29.1.el10_2` — above the
-stated fixed version, so AlmaLinux 10 production appears patched.  Rocky
-10's newest build is `6.12.0-211.26.1.el10_2` — below AlmaLinux's fixed
-release and carrying no backport — so it remains `:x: Vulnerable`; RHEL 10,
-Oracle Linux 10 and CloudLinux OS 10 are expected to be in the same state
-until their kernel updates land.  Rocky 8 (4.18) and 9 (5.14) predate the
-bug.
+stated fixed version, so AlmaLinux 10 production appears patched.  Red Hat
+has since fixed **RHEL 10** in RHSA-2026:34911
+(`6.12.0-211.30.1.el10_2`).  Rocky 10's newest build is
+`6.12.0-211.28.1.el10_2` — below that fixed release and carrying no
+backport — so it remains `:x: Vulnerable` until Rocky rebuilds the erratum
+(typically a day or two behind Red Hat).  Oracle Linux 10 and CloudLinux OS
+10 track RHEL.  Rocky 8 (4.18) and 9 (5.14) predate the bug and Red Hat
+marks RHEL 8/9 **Not affected**.
 
 ### Amazon Linux
 
@@ -314,7 +316,7 @@ Apply with `nixos-rebuild switch`.
 
 ## Verification log
 
-*Last verified 2026-07-08.*
+*Last verified 2026-07-09.*
 
 ### Upstream
 
@@ -357,11 +359,14 @@ Apply with `nixos-rebuild switch`.
   (default LTS) and `7.1.3` (`linuxPackages_latest`) — both carry the
   backport, fixed.  **nixos-26.05** advanced to `6.12.95` default LTS
   and `7.1.3` latest — both carry the backport, now fixed.
-- **Rocky Linux** (via Rocky BaseOS repodata): Rocky 10 newest
-  `6.12.0-211.26.1.el10_2` (below AlmaLinux's production-fixed
-  `6.12.0-211.29.1.el10_2`), EL10 `init_on_alloc` off → `:x:`
-  root-exploitable, no fix yet.  Rocky 9 `5.14.0-687.17.1.el9_8` and Rocky 8
-  `4.18.0-553.el8_10` predate the bug.
+- **Rocky / RHEL family** (via the Red Hat security data API, OSV, and
+  Rocky BaseOS repodata): Red Hat lists RHEL 8 and 9 `kernel` **Not
+  affected** (they predate the bug), and **RHEL 10 fixed** in RHSA-2026:34911
+  (`6.12.0-211.30.1.el10_2`; EUS in RHSA-2026:35840).  Rocky 10 newest is
+  `6.12.0-211.28.1.el10_2` — below the RHEL fixed build, EL10 `init_on_alloc`
+  off → `:x:` root-exploitable, Rocky rebuild pending.  Rocky 9
+  `5.14.0-687.17.1.el9_8` and Rocky 8 `4.18.0-553.el8_10` predate the bug →
+  not affected.  OSV shows no Rocky ecosystem entry yet.
 - **AlmaLinux** (leading indicator, via its blog and BaseOS repodata):
   initial fix `kernel-6.12.0-211.28.2.el10_2` on 2026-06-30 (testing repo);
   production BaseOS now carries `kernel-6.12.0-211.29.1.el10_2`, which
