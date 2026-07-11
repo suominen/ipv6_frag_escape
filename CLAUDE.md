@@ -231,6 +231,13 @@ the log.  Every entry in the log is already "as of" that header date.
 Method/source attribution *without* a date is fine and useful (e.g.
 `(via …/madison)`, `(checked against ~/src/linux/stable)`).
 
+The log records **facts**, not run outcomes.  Never write "no change",
+"unchanged from prior run", "no verdict changes this run", or similar
+prose anywhere in the tracker — an entry that is still accurate reports
+that by staying untouched.  This applies just as much on a run that
+*does* change something real: update only the lines whose facts changed
+and leave every other line exactly as it was.
+
 ### Date handling — first-seen / last-changed, not "today"
 
 Dates embedded in the prose (front-matter `lastmod`, the verification log
