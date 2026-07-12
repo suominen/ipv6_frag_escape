@@ -3,7 +3,7 @@ title: "IPV6_FRAG_ESCAPE — container escape tracking"
 description: "Linux kernel IPv6 fragmentation overflow — unprivileged container escape — distro patch status tracker"
 layout: "single"
 date: 2026-07-03
-lastmod: 2026-07-11
+lastmod: 2026-07-12
 cover:
   image: "ipv6-frag-escape-tracker.png"
   alt: "IPV6_FRAG_ESCAPE — Linux IPv6 fragmentation container escape tracker"
@@ -323,7 +323,7 @@ Apply with `nixos-rebuild switch`.
 
 ## Verification log
 
-*Last verified 2026-07-11.*
+*Last verified 2026-07-12.*
 
 ### Upstream
 
@@ -347,8 +347,8 @@ Apply with `nixos-rebuild switch`.
 ### Distributions
 
 - **Debian** (via the security tracker and dak `madison` API): unstable
-  `7.1.3-1`, **trixie `6.12.95-1`** (shipped to `trixie-security`,
-  first seen 2026-07-05), and **forky `7.1.3-1`** (migrated from 7.0.13-1
+  `7.1.3-1`, **trixie `6.12.95-1`** (shipped to `trixie-security` as
+  DSA-6381-1, first seen 2026-07-05), and **forky `7.1.3-1`** (migrated from 7.0.13-1
   to 7.1.3-1 in testing, observed 2026-07-11) all carry the upstream
   backport → **all three fixed**.  bookworm shows as open in the security
   tracker (latent accounting bug; trigger absent in 6.1.x → not
@@ -400,6 +400,7 @@ Apply with `nixos-rebuild switch`.
 | Fix merge | <https://github.com/torvalds/linux/commit/38becddc332c1dbee6ab8dc8f13a860c6280b905> |
 | Trigger commit | <https://github.com/torvalds/linux/commit/ce650a1663354a6cad7145e7f5131008458b39d4> |
 | CVE-2026-53362 | <https://www.cve.org/CVERecord?id=CVE-2026-53362> |
+| Debian DSA-6381-1 | <https://www.debian.org/security/2026/dsa-6381> |
 {.references}
 
 [writeup]: https://www.linkedin.com/pulse/ipv6fragescape-unprivileged-container-jail-escape-poc-oldani-xbewf/
