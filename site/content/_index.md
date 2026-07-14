@@ -3,7 +3,7 @@ title: "IPV6_FRAG_ESCAPE — container escape tracking"
 description: "Linux kernel IPv6 fragmentation overflow — unprivileged container escape — distro patch status tracker"
 layout: "single"
 date: 2026-07-03
-lastmod: 2026-07-13
+lastmod: 2026-07-14
 cover:
   image: "ipv6-frag-escape-tracker.png"
   alt: "IPV6_FRAG_ESCAPE — Linux IPv6 fragmentation container escape tracker"
@@ -121,8 +121,8 @@ only in prose where relevant.
 | Debian | 13 (trixie) | 6.12.95-1 | 2026-07-05 | :white_check_mark: Fixed — ships 6.12.95 (carries upstream backport) |
 | Debian | 12 (bookworm) | 6.1.170-3 | — | :white_check_mark: Not affected — trigger not present (< 6.6) |
 | Debian | 11 (bullseye, LTS) | 5.10.223-1 | — | :white_check_mark: Not affected — predates the bug |
-| Proxmox VE | 9 | 7.0.14-4-pve | — | :warning: Bug present — DoS only |
-| Proxmox VE | 8 | 6.8.12-33-pve | — | :warning: Bug present — DoS only |
+| Proxmox VE | 9 | 7.0.14-4-pve | — | :warning: Fix staged (7.0.14-5-pve) — not yet in pve-no-subscription |
+| Proxmox VE | 8 | 6.8.12-33-pve | — | :warning: Fix staged (6.8.12-35-pve) — not yet in pve-no-subscription |
 | NixOS | Unstable | 6.12.95 | 2026-07-06 | :white_check_mark: Fixed — ships 6.12.95 (carries upstream backport) |
 | NixOS | 26.05 | 6.12.95 | 2026-07-08 | :white_check_mark: Fixed — ships 6.12.95 (carries upstream backport) |
 | Rocky Linux | 10 | 6.12.0-211.32.1.el10_2 | 2026-07-11 | :white_check_mark: Fixed — ships 6.12.0-211.32.1.el10_2 (RLSA-2026:36956) |
@@ -150,9 +150,13 @@ to `linux 7.1.3-1`, which carries the backport — forky is now fixed.
 Debian 12 (6.1) and 11 (5.10) predate the v6.6 trigger and
 are not affected.  Proxmox VE builds
 Ubuntu-derived kernels with the same `init_on_alloc` default; PVE 9 (whose
-default kernel is now the 7.0 series) and PVE 8 (6.8 default) are all
-in-window and DoS-only — upstream 7.0.y reached end of life without the
-backport, and Proxmox has not cherry-picked it into either series.  Proxmox
+default kernel is now the 7.0 series) and PVE 8 (6.8 default) are
+in-window and DoS-only until patched — upstream 7.0.y reached end of life
+without the upstream backport.  On 2026-07-14 Proxmox committed the
+CVE-2026-53362 fix to `pve-kernel.git` for both series:
+`proxmox-kernel-7.0 7.0.14-5` (master branch) for PVE 9 and
+`proxmox-kernel-6.8 6.8.12-35` (bookworm-6.8 branch) for PVE 8.  Neither
+package has been published to `pve-no-subscription` yet.  Proxmox
 publishes kernel updates to the `pve-no-subscription` repository first; the
 enterprise repository receives the same kernels later.
 
@@ -323,7 +327,7 @@ Apply with `nixos-rebuild switch`.
 
 ## Verification log
 
-*Last verified 2026-07-13.*
+*Last verified 2026-07-14.*
 
 ### Upstream
 
@@ -355,15 +359,17 @@ Apply with `nixos-rebuild switch`.
   exploitable, row unchanged).  bullseye 5.10.223-1 predates the bug →
   not affected.
 - **Proxmox VE** (via the `pve-no-subscription` `Packages` index and the
-  `pve-kernel.git` packaging changelog): the PVE 9 default kernel series is
-  now 7.0 (`proxmox-default-kernel` 2.1.0 depends on `proxmox-kernel-7.0`),
-  newest 7.0.14-4-pve; PVE 8 default newest 6.8.12-33-pve.  Neither carries
-  the fraggap backport: 7.0.y went EOL upstream without it, the 7.0.14-4 /
-  6.8.12-33 changelogs list only unrelated security cherry-picks, and
-  6.8.12-32 synced stable changes only up to 6.6.141/6.12.91 (below the
-  fixed 6.6.144/6.12.95) — all in-window, Ubuntu-derived `init_on_alloc=y`
-  → DoS only.  The enterprise repository is auth-gated and trails
-  `pve-no-subscription`, so tracking keys on `pve-no-subscription`.
+  `pve-kernel.git` packaging changelog): PVE 9 default is the 7.0 series
+  (`proxmox-default-kernel` 2.1.0); PVE 8 default is the 6.8 series.  Both
+  are in-window, Ubuntu-derived `init_on_alloc=y` → DoS only until patched.
+  Published to `pve-no-subscription` as of 2026-07-14: PVE 9 newest
+  7.0.14-4-pve, PVE 8 newest 6.8.12-34-pve — neither carries the fraggap
+  backport.  On 2026-07-14, Proxmox committed the fix to `pve-kernel.git`:
+  `proxmox-kernel-7.0 7.0.14-5` (master, changelog: "fix CVE-2026-53362:
+  IPv6 fragementation handling overflow") and `proxmox-kernel-6.8 6.8.12-35`
+  (bookworm-6.8, same entry) — neither yet published to `pve-no-subscription`.
+  The enterprise repository is auth-gated and trails `pve-no-subscription`,
+  so tracking keys on `pve-no-subscription`.
 - **NixOS** (via the local nixpkgs clone): `common-config.nix` sets
   `INIT_ON_ALLOC_DEFAULT_ON = yes`.  **nixos-unstable** at `6.12.95`
   (default LTS) and `7.1.3` (`linuxPackages_latest`) — both carry the
