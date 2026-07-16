@@ -116,16 +116,16 @@ only in prose where relevant.
 
 | Distribution | Release | Kernel | Fixed since | Status |
 |---|---|---|---|---|
-| Debian | sid (unstable) | 7.1.3-1 | 2026-07-05 | :white_check_mark: Fixed — ships 7.1.3 (carries upstream backport) |
-| Debian | forky (testing) | 7.1.3-1 | 2026-07-11 | :white_check_mark: Fixed — ships 7.1.3 (carries upstream backport) |
-| Debian | 13 (trixie) | 6.12.95-1 | 2026-07-05 | :white_check_mark: Fixed — ships 6.12.95 (carries upstream backport) |
+| Debian | sid (unstable) | 7.1.3-1 | 2026-07-05 | :white_check_mark: Fixed |
+| Debian | forky (testing) | 7.1.3-1 | 2026-07-11 | :white_check_mark: Fixed |
+| Debian | 13 (trixie) | 6.12.95-1 | 2026-07-05 | :white_check_mark: Fixed |
 | Debian | 12 (bookworm) | 6.1.170-3 | — | :white_check_mark: Not affected — trigger not present (< 6.6) |
 | Debian | 11 (bullseye, LTS) | 5.10.223-1 | — | :white_check_mark: Not affected — predates the bug |
-| Proxmox VE | 9 | 7.0.14-5-pve | 2026-07-16 | :white_check_mark: Fixed — ships 7.0.14-5-pve |
-| Proxmox VE | 8 | 6.8.12-36-pve | 2026-07-16 | :white_check_mark: Fixed — ships 6.8.12-36-pve |
-| NixOS | Unstable | 6.12.95 | 2026-07-06 | :white_check_mark: Fixed — ships 6.12.95 (carries upstream backport) |
-| NixOS | 26.05 | 6.12.95 | 2026-07-08 | :white_check_mark: Fixed — ships 6.12.95 (carries upstream backport) |
-| Rocky Linux | 10 | 6.12.0-211.32.1.el10_2 | 2026-07-11 | :white_check_mark: Fixed — ships 6.12.0-211.32.1.el10_2 (RLSA-2026:36956) |
+| Proxmox VE | 9 | 7.0.14-5-pve | 2026-07-16 | :white_check_mark: Fixed |
+| Proxmox VE | 8 | 6.8.12-36-pve | 2026-07-16 | :white_check_mark: Fixed |
+| NixOS | Unstable | 6.12.95 | 2026-07-06 | :white_check_mark: Fixed |
+| NixOS | 26.05 | 6.12.95 | 2026-07-08 | :white_check_mark: Fixed |
+| Rocky Linux | 10 | 6.12.0-211.32.1.el10_2 | 2026-07-11 | :white_check_mark: Fixed (RLSA-2026:36956) |
 | Rocky Linux | 9 | 5.14.0-687.17.1.el9_8 | — | :white_check_mark: Not affected — trigger not present (< 6.6) |
 | Rocky Linux | 8 | 4.18.0-553.el8_10 | — | :white_check_mark: Not affected — predates the bug |
 | Amazon Linux | 2023 (kernel 6.1) | 6.1.176-220.360 | — | :white_check_mark: Not affected — trigger not present (< 6.6) |
