@@ -119,21 +119,21 @@ only in prose where relevant.
 | Debian | sid (unstable) | 7.1.3-1 | 2026-07-05 | :white_check_mark: Fixed |
 | Debian | forky (testing) | 7.1.3-1 | 2026-07-11 | :white_check_mark: Fixed |
 | Debian | 13 (trixie) | 6.12.95-1 | 2026-07-05 | :white_check_mark: Fixed |
-| Debian | 12 (bookworm) | 6.1.170-3 | — | :white_check_mark: Not affected — trigger not present (< 6.6) |
-| Debian | 11 (bullseye, LTS) | 5.10.223-1 | — | :white_check_mark: Not affected — predates the bug |
+| Debian | 12 (bookworm) | 6.1.170-3 | — | :heavy_minus_sign: Not affected — trigger not present (< 6.6) |
+| Debian | 11 (bullseye, LTS) | 5.10.223-1 | — | :heavy_minus_sign: Not affected — predates the bug |
 | Proxmox VE | 9 | 7.0.14-5-pve | 2026-07-16 | :white_check_mark: Fixed |
 | Proxmox VE | 8 | 6.8.12-36-pve | 2026-07-16 | :white_check_mark: Fixed |
 | NixOS | Unstable | 6.12.95 | 2026-07-06 | :white_check_mark: Fixed |
 | NixOS | 26.05 | 6.12.95 | 2026-07-08 | :white_check_mark: Fixed |
 | Rocky Linux | 10 | 6.12.0-211.32.1.el10_2 | 2026-07-11 | :white_check_mark: Fixed (RLSA-2026:36956) |
-| Rocky Linux | 9 | 5.14.0-687.17.1.el9_8 | — | :white_check_mark: Not affected — trigger not present (< 6.6) |
-| Rocky Linux | 8 | 4.18.0-553.el8_10 | — | :white_check_mark: Not affected — predates the bug |
-| Amazon Linux | 2023 (kernel 6.1) | 6.1.176-220.360 | — | :white_check_mark: Not affected — trigger not present (< 6.6) |
+| Rocky Linux | 9 | 5.14.0-687.17.1.el9_8 | — | :heavy_minus_sign: Not affected — trigger not present (< 6.6) |
+| Rocky Linux | 8 | 4.18.0-553.el8_10 | — | :heavy_minus_sign: Not affected — predates the bug |
+| Amazon Linux | 2023 (kernel 6.1) | 6.1.176-220.360 | — | :heavy_minus_sign: Not affected — trigger not present (< 6.6) |
 | Amazon Linux | 2023 (kernel6.12) | 6.12.94-123.176 | — | :x: Vulnerable — in-window, no ALAS |
 | Amazon Linux | 2023 (kernel6.18) | 6.18.36-69.136 | — | :x: Vulnerable — in-window, no ALAS |
-| Amazon Linux | 2 (kernel 4.14) | 4.14.355-284.737 | — | :white_check_mark: Not affected — predates the bug |
-| Amazon Linux | 2 (kernel-5.10) | 5.10.259-258.1043 | — | :white_check_mark: Not affected — trigger not present (< 6.6) |
-| Amazon Linux | 2 (kernel-5.15) | 5.15.210-148.245 | — | :white_check_mark: Not affected — trigger not present (< 6.6) |
+| Amazon Linux | 2 (kernel 4.14) | 4.14.355-284.737 | — | :heavy_minus_sign: Not affected — predates the bug |
+| Amazon Linux | 2 (kernel-5.10) | 5.10.259-258.1043 | — | :heavy_minus_sign: Not affected — trigger not present (< 6.6) |
+| Amazon Linux | 2 (kernel-5.15) | 5.15.210-148.245 | — | :heavy_minus_sign: Not affected — trigger not present (< 6.6) |
 {.distros}
 
 ### Debian / Proxmox VE
