@@ -1,6 +1,6 @@
 baseURL = "https://kimmo.cloud/ipv6_frag_escape/"
 locale = "en-US"
-title = "IPV6_FRAG_ESCAPE — container escape"
+title = "CVE-2026-53362 — IPV6_FRAG_ESCAPE"
 copyright = "Copyright © 2026 [Kimmo Suominen](https://kimmo.suominen.com/) · [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)"
 
 enableEmoji = true
