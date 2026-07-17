@@ -3,7 +3,7 @@ title: "IPV6_FRAG_ESCAPE — container escape tracking"
 description: "Linux kernel IPv6 fragmentation overflow — unprivileged container escape — distro patch status tracker"
 layout: "single"
 date: 2026-07-03
-lastmod: 2026-07-16
+lastmod: 2026-07-17
 cover:
   image: "ipv6-frag-escape-tracker.png"
   alt: "IPV6_FRAG_ESCAPE — Linux IPv6 fragmentation container escape tracker"
@@ -14,7 +14,7 @@ cover:
 
 | Field | Detail |
 |---|---|
-| CVE ID | CVE-2026-53362 |
+| CVE ID | CVE-2026-53362 (IPv6) · CVE-2026-53366 (IPv4) |
 | Alias | `IPV6_FRAG_ESCAPE` (the name its [PoC][poc] uses); TuxCare writes it `ipv6-frag-escape` |
 | Component | Kernel: `net/ipv6/ip6_output.c` `__ip6_append_data()` · IPv4 sibling `net/ipv4/ip_output.c` `__ip_append_data()` |
 | Type | Container / jail escape → local privilege escalation — slab overflow into `skb_shared_info` → page UAF → Dirty Pagetable → root shell via `core_pattern` |
@@ -327,7 +327,7 @@ Apply with `nixos-rebuild switch`.
 
 ## Verification log
 
-*Last verified 2026-07-16.*
+*Last verified 2026-07-17.*
 
 ### Upstream
 
@@ -338,8 +338,9 @@ Apply with `nixos-rebuild switch`.
 - The trigger `ce650a166335` (*udp6: Fix `__ip6_append_data()`'s handling
   of MSG_SPLICE_PAGES*) is present in stable branches 6.6.y and newer and
   absent from 6.1.y — confirming the 6.6 reachability boundary.
-- **CVE-2026-53362** assigned by the kernel CNA (confirmed via `vulns.git`
-  `origin/master`; record keys on `736b380e28d0` / `eca856950f7c`).
+- **CVE-2026-53362** (IPv6, keys on `736b380e28d0`) and **CVE-2026-53366**
+  (IPv4, keys on `eca856950f7c`) assigned by the kernel CNA as separate CVEs
+  (confirmed via `vulns.git` `origin/master`).
 - **Stable backports landed**: 6.6.144, 6.12.95, 6.18.38, and 7.1.3 all
   carry the fix (SHA-reference grep against `linux/stable`; SHAs confirmed
   against the `vulns.git` `.dyad`).  7.0.y reached end of life at 7.0.14
@@ -405,6 +406,7 @@ Apply with `nixos-rebuild switch`.
 | Fix merge | <https://github.com/torvalds/linux/commit/38becddc332c1dbee6ab8dc8f13a860c6280b905> |
 | Trigger commit | <https://github.com/torvalds/linux/commit/ce650a1663354a6cad7145e7f5131008458b39d4> |
 | CVE-2026-53362 | <https://www.cve.org/CVERecord?id=CVE-2026-53362> |
+| CVE-2026-53366 | <https://www.cve.org/CVERecord?id=CVE-2026-53366> |
 | Debian DSA-6381-1 | <https://www.debian.org/security/2026/dsa-6381> |
 {.references}
 
