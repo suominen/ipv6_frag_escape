@@ -3,7 +3,7 @@ title: "IPV6_FRAG_ESCAPE — container escape tracking"
 description: "Linux kernel IPv6 fragmentation overflow — unprivileged container escape — distro patch status tracker"
 layout: "single"
 date: 2026-07-03
-lastmod: 2026-07-17
+lastmod: 2026-07-19
 cover:
   image: "ipv6-frag-escape-tracker.png"
   alt: "IPV6_FRAG_ESCAPE — Linux IPv6 fragmentation container escape tracker"
@@ -327,7 +327,7 @@ Apply with `nixos-rebuild switch`.
 
 ## Verification log
 
-*Last verified 2026-07-17.*
+*Last verified 2026-07-19.*
 
 ### Upstream
 
@@ -355,9 +355,10 @@ Apply with `nixos-rebuild switch`.
   `7.1.3-1`, **trixie `6.12.95-1`** (shipped to `trixie-security` as
   DSA-6381-1, first seen 2026-07-05), and **forky `7.1.3-1`** (migrated from 7.0.13-1
   to 7.1.3-1 in testing, observed 2026-07-11) all carry the upstream
-  backport → **all three fixed**.  bookworm shows as open in the security
-  tracker (latent accounting bug; trigger absent in 6.1.x → not
-  exploitable, row unchanged).  bullseye 5.10.223-1 predates the bug →
+  backport → **all three fixed**.  bookworm now shows as resolved in the
+  security tracker (`6.1.177-1` in `bookworm-security` patches the latent
+  accounting bug; trigger absent in 6.1.x → not exploitable, row
+  unchanged).  bullseye 5.10.223-1 predates the bug →
   not affected.
 - **Proxmox VE** (via the `pve-no-subscription` `Packages` index and the
   `pve-kernel.git` packaging changelog): PVE 9 default is the 7.0 series
