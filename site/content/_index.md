@@ -10,6 +10,11 @@ cover:
   hiddenInSingle: true
 ---
 
+*This tracker is no longer updated.  Every tracked distribution has
+shipped a kernel carrying the `736b380e28d0` backport or was never
+affected.  Upstream 7.0.y and 6.16.y reached end of life without it, so
+a vanilla kernel from either line remains vulnerable.*
+
 ## Summary
 
 | Field | Detail |

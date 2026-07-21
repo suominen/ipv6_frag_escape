@@ -31,13 +31,13 @@ The rendered site is published at <https://kimmo.cloud/ipv6_frag_escape/>.
 
 ## Your task
 
-Keep `site/content/_index.md` (the canonical tracker) up to date as the
-kernel fix is backported to stable trees and picked up by distro kernels.
-After edits, rebuild with `make build` and publish with `make dist`.
-
-A scheduled background agent runs against this repo to refresh the
-tracker on its own.  If you find the file has been edited since you last
-looked, that's likely why — re-read before assuming stale state.
+This tracker was archived on 2026-07-21 — it is no longer updated.
+Every tracked distribution has shipped a kernel carrying the
+`736b380e28d0` backport or was never affected.  The auto-update (timer,
+unit symlinks, worktree, `auto-update` branch) has been torn down; do
+not resume routine updates.  If a genuinely new fact surfaces (e.g. a
+KEV listing), edit `site/content/_index.md`, rebuild with `make build`,
+and publish with `make dist` — but the default state is frozen.
 
 ## Repo layout
 
