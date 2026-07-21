@@ -3,7 +3,7 @@ title: "IPV6_FRAG_ESCAPE — container escape tracking"
 description: "Linux kernel IPv6 fragmentation overflow — unprivileged container escape — distro patch status tracker"
 layout: "single"
 date: 2026-07-03
-lastmod: 2026-07-19
+lastmod: 2026-07-21
 cover:
   image: "ipv6-frag-escape-tracker.png"
   alt: "IPV6_FRAG_ESCAPE — Linux IPv6 fragmentation container escape tracker"
@@ -129,8 +129,8 @@ only in prose where relevant.
 | Rocky Linux | 9 | 5.14.0-687.17.1.el9_8 | — | :heavy_minus_sign: Not affected — trigger not present (< 6.6) |
 | Rocky Linux | 8 | 4.18.0-553.el8_10 | — | :heavy_minus_sign: Not affected — predates the bug |
 | Amazon Linux | 2023 (kernel 6.1) | 6.1.176-220.360 | — | :heavy_minus_sign: Not affected — trigger not present (< 6.6) |
-| Amazon Linux | 2023 (kernel6.12) | 6.12.94-123.176 | — | :x: Vulnerable — in-window, no ALAS |
-| Amazon Linux | 2023 (kernel6.18) | 6.18.36-69.136 | — | :x: Vulnerable — in-window, no ALAS |
+| Amazon Linux | 2023 (kernel6.12) | 6.12.94-123.176 | 2026-07-06 | :white_check_mark: Fixed (ALAS2023-2026-1937) |
+| Amazon Linux | 2023 (kernel6.18) | 6.18.36-69.136 | 2026-07-06 | :white_check_mark: Fixed (ALAS2023-2026-1938) |
 | Amazon Linux | 2 (kernel 4.14) | 4.14.355-284.737 | — | :heavy_minus_sign: Not affected — predates the bug |
 | Amazon Linux | 2 (kernel-5.10) | 5.10.259-258.1043 | — | :heavy_minus_sign: Not affected — trigger not present (< 6.6) |
 | Amazon Linux | 2 (kernel-5.15) | 5.15.210-148.245 | — | :heavy_minus_sign: Not affected — trigger not present (< 6.6) |
@@ -192,9 +192,10 @@ Rocky 8 (4.18) and 9 (5.14) predate the bug and Red Hat marks RHEL 8/9
 
 The default AL2023 stream (`kernel`, 6.1.x) and AL2 (`kernel`, 4.14.x)
 predate the v6.6 trigger and are not affected.  AL2023's opt-in
-`kernel6.12` / `kernel6.18` streams **are** in-window; if selected they
-carry the bug, with the root-vs-DoS outcome depending on Amazon's
-`init_on_alloc` default for that stream (verify before relying on it).
+`kernel6.12` and `kernel6.18` streams are in-window and were vulnerable
+until Amazon shipped independent cherry-picks: **ALAS2023-2026-1937**
+(`kernel6.12-6.12.94-123.176`, 2026-07-06) and **ALAS2023-2026-1938**
+(`kernel6.18-6.18.36-69.136`, 2026-07-06) — both streams are now fixed.
 
 ## Detection
 
@@ -327,7 +328,7 @@ Apply with `nixos-rebuild switch`.
 
 ## Verification log
 
-*Last verified 2026-07-19.*
+*Last verified 2026-07-21.*
 
 ### Upstream
 
@@ -389,9 +390,12 @@ Apply with `nixos-rebuild switch`.
   production BaseOS now carries `kernel-6.12.0-211.29.1.el10_2`, which
   exceeds the stated fixed version — AlmaLinux 10 production appears patched.
   Kitten 10 patch still pending per the 2026-06-30 blog.
-- **Amazon Linux**: default AL2023 (6.1.x) and AL2 (4.14.x) predate the
-  trigger → not affected; AL2023 opt-in `kernel6.12`/`kernel6.18` streams
-  are in-window and unverified for `init_on_alloc`.
+- **Amazon Linux** (via the AL2023 `updateinfo.xml.gz`): default AL2023
+  (6.1.x) and AL2 (4.14.x) predate the trigger → not affected.  AL2023
+  opt-in `kernel6.12` fixed in ALAS2023-2026-1937
+  (`kernel6.12-6.12.94-123.176.amzn2023`, issued 2026-07-06); `kernel6.18`
+  fixed in ALAS2023-2026-1938 (`kernel6.18-6.18.36-69.136.amzn2023`,
+  issued 2026-07-06) — both streams now fixed.
 
 ## References
 
