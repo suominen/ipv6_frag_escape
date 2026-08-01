@@ -1,39 +1,27 @@
 # IPV6_FRAG_ESCAPE — Linux IPv6 fragmentation container escape tracking site
 
-Patch-status tracker for **IPV6_FRAG_ESCAPE**, an unprivileged
-container-to-host-root escape in the Linux kernel.  An arithmetic error in
-the IPv6 fragmentation path (`__ip6_append_data()`, with an IPv4 sibling in
-`__ip_append_data()`) undersizes an allocation so the packet's own head
-object overflows into the trailing `skb_shared_info`, giving an attacker
-control of `nr_frags` — a page use-after-free that the PoC converts into a
-Dirty-Pagetable read/write primitive and finally a host-init-namespace root
-shell via a `core_pattern` overwrite.  Discovered by Massimiliano Oldani
-and [disclosed on 2026-06-29](https://www.linkedin.com/pulse/ipv6fragescape-unprivileged-container-jail-escape-poc-oldani-xbewf/).
-Public PoC: <https://github.com/sgkdev/ipv6_frag_escape>.
+Source for the **IPV6_FRAG_ESCAPE** patch-status tracker: a single-page
+site recording which distributions have shipped a fix for the IPv6
+fragmentation container escape in the Linux kernel.
 
-The bad accounting was introduced dormant in v6.0 (`773ba4fe9104` IPv6 /
-`8eb77cc73977` IPv4), made triggerable in v6.6 (`ce650a166335`), and fixed
-in v7.2-rc1 by
-[`736b380e28d0`](https://github.com/torvalds/linux/commit/736b380e28d0)
-(merge [`38becddc`](https://github.com/torvalds/linux/commit/38becddc);
-IPv4 sibling `eca856950f7c`).  The practical exploitable window is kernels
-**6.6 through 7.1**; distro adoption of the backport is tracked below.
+## Where the facts live
 
-There is **no CVE** and, at disclosure, no `Cc: stable` — stable 6.6.y /
-6.12.y did not automatically carry the backport, so each distribution picks
-it up independently.  Whether a still-vulnerable kernel is a full root
-escape or only a denial of service turns on
-`CONFIG_INIT_ON_ALLOC_DEFAULT_ON`: it is **off** on EL10 (root-exploitable)
-and **on** on Debian/Ubuntu (DoS-only).
+Everything about the bug — CVE IDs, affected and fixed versions, upstream
+fix commits, discovery and disclosure credit, and final per-distribution
+patch status — belongs to the tracker page, not to this README:
 
-The rendered site is published at
-**<https://kimmo.cloud/ipv6_frag_escape/>**.  Deployment plan and current
-setup state live in [`WEBSITE.md`](WEBSITE.md).
+- **Rendered:** <https://kimmo.cloud/ipv6_frag_escape/>
+- **Source:** [`site/content/_index.md`](site/content/_index.md)
 
-## Source of truth
+Edit that file; everything else in this repo is build infrastructure.
 
-The tracker is a single Hugo page: [`site/content/_index.md`](site/content/_index.md).
-Edit that file; everything else is build infrastructure.
+None of it is restated here on purpose.  A second copy in this README
+would only rot as the tracker page is revised — as it already did, by
+claiming no CVE had been assigned long after two were issued.  Resist
+re-adding a summary.
+
+Deployment plan and current setup state live in
+[`WEBSITE.md`](WEBSITE.md).
 
 ## Local development
 
