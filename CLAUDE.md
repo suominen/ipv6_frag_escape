@@ -264,7 +264,7 @@ change is what records that everything in between was still current.
 
 ## Auto-update worktree
 
-The systemd timer runs `scripts/auto-update` from a dedicated git
+The auto-update job works in a dedicated git
 worktree at `~/src/auto-update/ipv6_frag_escape`, checked out on a single
 long-lived branch named `auto-update`.  The wrapper merges `origin/main`
 forward into that branch on each run, then hands off to headless Claude,
@@ -277,6 +277,31 @@ One-time setup (from the primary checkout at `~/src/ipv6_frag_escape`):
 ```
 git worktree add -b auto-update ~/src/auto-update/ipv6_frag_escape main
 ```
+
+**The timer runs the wrapper from the primary checkout, not from the
+worktree.**  `ExecStart` points at `<primary>/scripts/auto-update`, and the
+wrapper reads its prompt from there too, so what executes is always code you
+have reviewed and merged to `main`.  The agent can commit to `auto-update`,
+so anything under `scripts/`, `.claude/`, `CLAUDE.md`, or `.mcp.json` on
+that branch is untrusted: after merging `origin/main` forward the wrapper
+refuses to run if any of them differs from `origin/main`, and it refuses
+outright if it was invoked from inside the worktree at all.  A wrapper
+change therefore takes effect on the next run after you merge it to `main`,
+with no re-exec dance.
+
+The service unit adds a kernel-level backstop — `ProtectSystem=strict` with
+a short `ReadWritePaths` list (the worktree, the `.git` directories git has
+to update, and `~/.claude/session-env`, which Claude Code writes on every
+Bash call).  Without it the guards above are advisory: the agent may run
+`curl`, and `curl -o` writes anywhere this user can, including over the
+wrapper the timer runs.  Each repository's `.git/hooks` and `.git/config`
+are handed back as `ReadOnlyPaths`, since nothing in a run needs to write
+either and both are executable code.
+
+A refusal is a stop-and-look rather than something to clear reflexively —
+it means a file that should only ever arrive by merge was rewritten on the
+branch.  Inspect it with `git -C ~/src/auto-update/<slug> diff origin/main
+-- scripts .claude CLAUDE.md .mcp.json` before doing anything else.
 
 The systemd units ship in `systemd/`.  They are not in a standard unit
 search path, so wiring the timer means symlinking both units into
